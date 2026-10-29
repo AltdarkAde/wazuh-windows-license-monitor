@@ -1,0 +1,27 @@
+<!--
+  Windows license monitoring rules for Wazuh.
+  Copy into /var/ossec/etc/rules/local_rules.xml (or its own file in etc/rules/).
+
+  IMPORTANT: rule IDs 100800 and 100801 must not already exist in your ruleset.
+  If they do, pick unused IDs in the 100000-120000 custom range.
+-->
+<group name="windows,license,">
+
+  <!-- Base rule: any result reported by the license check. -->
+  <rule id="100800" level="3">
+    <if_sid>530</if_sid>
+    <match>^ossec: output: 'win_license_status'</match>
+    <description>Windows license status reported by agent</description>
+  </rule>
+
+  <!-- Unlicensed (or grace / notification state). -->
+  <rule id="100801" level="10">
+    <if_sid>100800</if_sid>
+    <match>NOT_LICENSED</match>
+    <description>Windows license: NOT LICENSED</description>
+    <!-- Uncomment to avoid an email on every check:
+    <options>no_email_alert</options>
+    -->
+  </rule>
+
+</group>

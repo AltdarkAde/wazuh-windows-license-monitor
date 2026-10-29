@@ -1,0 +1,17 @@
+<!--
+  Add this block to the shared agent config of your Windows agent group, e.g.
+  /var/ossec/etc/shared/<GroupName>/agent.conf   (group names are case-sensitive)
+
+  Place the <localfile> inside an existing <agent_config> if you already have one.
+  Agents must have logcollector.remote_commands=1 to accept it (see README).
+
+  frequency is in seconds: 60 for testing, 21600 (6 hours) for production.
+-->
+<agent_config os="Windows">
+  <localfile>
+    <log_format>full_command</log_format>
+    <command>powershell.exe -NoProfile -ExecutionPolicy Bypass -Command "$p = Get-CimInstance SoftwareLicensingProduct | Where-Object { $_.PartialProductKey -and $_.ApplicationID -eq '55c92734-d682-4d71-983e-d6ec3f16059f' } | Select-Object -First 1; if (-not $p) { 'NOT_LICENSED status=no_key' } elseif ($p.LicenseStatus -eq 1) { 'LICENSED' } else { 'NOT_LICENSED status=' + $p.LicenseStatus }"</command>
+    <alias>win_license_status</alias>
+    <frequency>21600</frequency>
+  </localfile>
+</agent_config>
