@@ -11,6 +11,7 @@ machines raise an alert.
 3. Custom rules build on 530:
    - **100800** (level 3): every license result reported.
    - **100801** (level 10): result contains `NOT_LICENSED`.
+   - **100802** (level 8): the check itself failed (`CHECK_ERROR`).
 
 ## Requirements
 - Wazuh 4.x manager and Windows agents (tested on 4.14)
@@ -21,7 +22,7 @@ machines raise an alert.
 
 ### 1. Manager: add the rules
 Copy `manager/license_rules.xml` into `/var/ossec/etc/rules/local_rules.xml` (or a new file
-in that directory). Make sure IDs 100800/100801 are unused, then validate and restart:
+in that directory). Make sure IDs 100800-100802 are unused, then validate and restart:
 
 ```bash
 /var/ossec/bin/wazuh-analysisd -t
@@ -55,11 +56,20 @@ In Wazuh Dashboard (Threat Hunting / Discover):
 
 | Query | Shows |
 |---|---|
-| `rule.id: 100801` | Unlicensed servers |
-| `rule.id: 100800` | Every server that reported |
+| `rule.id: 100800` | Licensed |
+| `rule.id: 100801` | Not licensed |
+| `rule.id: 100802` | Check failed to run |
+| `rule.id: (100800 OR 100801 OR 100802)` | Everything that reported |
 
 Group by `agent.name` for a per-server list. Compare against your agent list; servers that
 are missing are disconnected or lack the agent setting.
+
+### Spotting stale or missing results
+
+A server whose agent is down or whose check silently stopped will not appear at all, and an old
+"licensed" result can look reassuring. To catch this, build a Data table visualization on
+`rule.id: (100800 OR 100801)` with **Max of @timestamp** split by **Terms on agent.name**,
+sorted oldest first. Anything older than about twice your `<frequency>` is stale.
 
 ## LicenseStatus values
 
