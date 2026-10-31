@@ -10,7 +10,7 @@
 <agent_config os="Windows">
   <localfile>
     <log_format>full_command</log_format>
-    <command>powershell.exe -NoProfile -ExecutionPolicy Bypass -Command "$p = Get-CimInstance SoftwareLicensingProduct | Where-Object { $_.PartialProductKey -and $_.ApplicationID -eq '55c92734-d682-4d71-983e-d6ec3f16059f' } | Select-Object -First 1; if (-not $p) { 'NOT_LICENSED status=no_key' } elseif ($p.LicenseStatus -eq 1) { 'LICENSED' } else { 'NOT_LICENSED status=' + $p.LicenseStatus }"</command>
+    <command>powershell.exe -NoProfile -ExecutionPolicy Bypass -Command "try { $p = Get-CimInstance SoftwareLicensingProduct -ErrorAction Stop | Where-Object { $_.PartialProductKey -and $_.ApplicationID -eq '55c92734-d682-4d71-983e-d6ec3f16059f' } | Select-Object -First 1; if (-not $p) { 'NOT_LICENSED status=no_key' } elseif ($p.LicenseStatus -eq 1) { 'LICENSED' } else { 'NOT_LICENSED status=' + $p.LicenseStatus } } catch { 'CHECK_ERROR ' + $_.Exception.Message }"</command>
     <alias>win_license_status</alias>
     <frequency>21600</frequency>
   </localfile>
