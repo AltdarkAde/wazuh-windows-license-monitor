@@ -24,4 +24,10 @@
     -->
   </rule>
 
+  <rule id="100802" level="8">
+    <if_sid>100800</if_sid>
+    <match>CHECK_ERROR</match>
+    <description>Windows license: check FAILED to run</description>
+  </rule>
+
 </group>
